@@ -33,8 +33,19 @@ app.get('/info', (req, res) => {
   `)
 })
 
-app.get('/api/person', (req, res) => {
-  res.json(notes)
+app.get('/api/persons', (req, res) => {
+  res.json(persons)
+})
+
+app.get('/api/persons/:id', (req, res) => {
+  const searchedId = Number(req.params.id)
+  const resPerson = persons.find(person => person.id === searchedId)
+  
+  if (!resPerson) {
+    res.status(404).end()
+  }
+
+  res.json(resPerson)
 })
 
 const PORT = 3001
