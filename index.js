@@ -41,12 +41,22 @@ app.get('/api/persons', (request, response) => {
 })
 
 app.post('/api/persons', (request, response) => {
-  const person = request.body
-  person.id = Math.floor(Math.random() * 1000)
+  const newPerson = request.body
+  
+  if (!newPerson.name || !newPerson.number) {
+    response.json({error: 'name or number missing'}, 400)
+    return 
+  }
+  if (persons.find(person => person.name === newPerson.name)) {
+    response.json({error: 'name must be unique'}, 400)
+    return
+  } 
 
-  persons.push(person)
+  newPerson.id = Math.floor(Math.random() * 1000)
 
-  response.json(person, 201)
+  persons.push(newPerson)
+  
+  response.json(newPerson, 201)
 })
 
 app.delete('/api/persons/:id', (request, response) => {
