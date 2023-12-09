@@ -1,5 +1,8 @@
 const express = require('express')
+const { request } = require('http')
 const app = express()
+
+app.use(express.json())
 
 let persons = [
   {
@@ -24,8 +27,8 @@ let persons = [
   }
 ]
 
-app.get('/info', (req, res) => {
-  res.send(`
+app.get('/info', (request, response) => {
+  response.send(`
     <div>
       <p>Phonebook has info for ${persons.length} people</p>
       <p>${new Date()}<p/>
@@ -33,19 +36,35 @@ app.get('/info', (req, res) => {
   `)
 })
 
-app.get('/api/persons', (req, res) => {
-  res.json(persons)
+app.get('/api/persons', (request, response) => {
+  response.json(persons)
 })
 
-app.get('/api/persons/:id', (req, res) => {
-  const searchedId = Number(req.params.id)
-  const resPerson = persons.find(person => person.id === searchedId)
-  
+app.post('/api/persons', (request, response) => {
+  const person = request.body
+  person.id = Math.floor(Math.random() * 1000)
+
+  persons.push(person)
+
+  response.json(person, 201)
+})
+
+app.delete('/api/persons/:id', (request, response) => {
+  const id = Number(request.params.id)
+  persons = persons.filter(person => person.id !== id)
+
+  response.status(204).end()
+})
+
+app.get('/api/persons/:id', (request, response) => {
+  const id = Number(request.params.id)
+  const resPerson = persons.find(person => person.id === id)
+
   if (!resPerson) {
-    res.status(404).end()
+    response.status(404).end()
   }
 
-  res.json(resPerson)
+  response.json(resPerson)
 })
 
 const PORT = 3001
