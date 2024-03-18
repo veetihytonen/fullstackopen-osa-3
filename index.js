@@ -1,8 +1,10 @@
 const express = require('express')
-const { request } = require('http')
+const { request, response } = require('http')
+const morgan = require('morgan')
 const app = express()
 
 app.use(express.json())
+app.use(morgan('tiny'))
 
 let persons = [
   {
@@ -44,11 +46,11 @@ app.post('/api/persons', (request, response) => {
   const newPerson = request.body
   
   if (!newPerson.name || !newPerson.number) {
-    response.json({error: 'name or number missing'}, 400)
+    response.status(400).json({error: 'name or number missing'})
     return 
   }
   if (persons.find(person => person.name === newPerson.name)) {
-    response.json({error: 'name must be unique'}, 400)
+    response.status(400).json({error: 'name must be unique'})
     return
   } 
 
@@ -56,7 +58,7 @@ app.post('/api/persons', (request, response) => {
 
   persons.push(newPerson)
   
-  response.json(newPerson, 201)
+  response.status(201).json(newPerson)
 })
 
 app.delete('/api/persons/:id', (request, response) => {
