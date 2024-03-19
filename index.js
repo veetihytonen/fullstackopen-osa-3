@@ -3,15 +3,21 @@ const { request, response } = require('http')
 const morgan = require('morgan')
 const app = express()
 
+morgan.token('body', (req) => {
+  const {id: _, ...noID} = req.body
+  const body = JSON.stringify(noID)
+  return body === "{}" ? "" : body
+})
+
 app.use(express.json())
-app.use(morgan('tiny'))
+app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body'))
 
 let persons = [
   {
     "name": "Arto Hellas",
     "number": "040-123456",
     "id": 1
-  },
+  },  
   {
     "name": "Ada Lovelace",
     "number": "39-44-5323523",
