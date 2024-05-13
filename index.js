@@ -56,10 +56,15 @@ app.post('/api/persons', (request, response) => {
   response.status(201).json(newPerson)
 })
 
-app.delete('/api/persons/:id', (request, response) => {
-  const id = Number(request.params.id)
-  persons = persons.filter(person => person.id !== id)
-
+app.delete('/api/persons/:id', (request, response, next) => {
+  const id = request.params.id
+  Contact.findByIdAndDelete(id)
+  .then(result => {
+    response.status().end()
+  })
+  .catch(error => {
+    next(error)
+  })
   response.status(204).end()
 })
 
