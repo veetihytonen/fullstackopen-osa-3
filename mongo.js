@@ -55,7 +55,3 @@ if (process.argv.length === 3) {
   console.log('incorrect number of arguments')
   mongoose.connection.close()
 }
-
-
-
-
