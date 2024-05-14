@@ -69,15 +69,18 @@ app.post('/api/persons', (request, response) => {
   response.status(201).json(newPerson)
 })
 
-app.get('/api/persons/:id', (request, response) => {
-  const id = Number(request.params.id)
-  const resPerson = persons.find(person => person.id === id)
+app.get('/api/persons/:id', (request, response, next) => {
+  const id = request.params.id
+  const contact = Contact.findById(id)
+  .then(foundContact => {
+    if (!foundContact){
+      response.status(404).end()
+      return
+    }
 
-  if (!resPerson) {
-    response.status(404).end()
-  }
-
-  response.json(resPerson)
+    response.json(foundContact)
+  })
+  .catch(error => next(error))
 })
 
 app.put('/api/persons/:id', (request, response, next) => {
