@@ -16,6 +16,19 @@ app.use(express.static('dist'))
 app.use(express.json())
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body'))
 
+const unknownEndpoint = (request, response) => {
+  response.status(404).send({ error: 'unknown endpoint' })
+}
+
+const errorHandler = (error, request, response, next) => {
+  console.log(error)
+  if (error.name === 'CastError') {
+    response.status(400).send({ error: 'malformatted id' })
+  }
+
+  next(error)
+}   
+
 app.get('/info', (request, response) => {
   response.send(`
     <div>
@@ -56,18 +69,6 @@ app.post('/api/persons', (request, response) => {
   response.status(201).json(newPerson)
 })
 
-app.delete('/api/persons/:id', (request, response, next) => {
-  const id = request.params.id
-  Contact.findByIdAndDelete(id)
-  .then(result => {
-    response.status().end()
-  })
-  .catch(error => {
-    next(error)
-  })
-  response.status(204).end()
-})
-
 app.get('/api/persons/:id', (request, response) => {
   const id = Number(request.params.id)
   const resPerson = persons.find(person => person.id === id)
@@ -79,18 +80,33 @@ app.get('/api/persons/:id', (request, response) => {
   response.json(resPerson)
 })
 
-const unknownEndpoint = (request, response) => {
-  response.status(404).send({ error: 'unknown endpoint' })
-}
+app.put('/api/persons/:id', (request, response, next) => {
+  const id = request.params.id
+  const body = request.body
 
-const errorHandler = (error, request, response, next) => {
-  console.log(error)
-  if (error.name === 'CastError') {
-    response.status(400).send({ error: 'malformatted id' })
+  const newContact = {
+    name: body.name,
+    number: body.number
   }
 
-  next(error)
-}   
+  Contact.findByIdAndUpdate(id, newContact, { new: true })
+  .then(updatedContact => {
+    response.json(updatedContact)
+  })
+  .catch(error => next(error))
+})
+
+app.delete('/api/persons/:id', (request, response, next) => {
+  const id = request.params.id
+  Contact.findByIdAndDelete(id)
+  .then(result => {
+    response.status().end()
+  })
+  .catch(error => {
+    next(error)
+  })
+  response.status(204).end()
+})
 
 app.use(unknownEndpoint)
 app.use(errorHandler)
