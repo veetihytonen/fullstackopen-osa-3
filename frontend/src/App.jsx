@@ -147,34 +147,46 @@ const App = () => {
   const onPersonSubmit = (event) => {
     event.preventDefault()
 
-    if (! persons.every(person => person.name !== newName)) {
-      if (window.confirm(`${newName} is already added to phonebook, replace the old number with a new one?`)) {
-        const updatedPerson = {...persons.find(person => person.name === newName), number: newNumber}
-        
-        personService
-          .update(updatedPerson.id, updatedPerson)
-          .then(returnedPerson => {
-            setPersons(persons.map(person => person.id !== returnedPerson.id ? person : returnedPerson))
-            timeNotification(`Modified number for ${returnedPerson.name}`, 5)
-            clearForm()
-          })
-          .catch(error => {
-            timeError(`${updatedPerson.name} was already removed from server`, 5)
-          })
-      }
+    if (persons.every(person => person.name !== newName)) {
+      const newPerson = { 'name': newName, 'number': newNumber }
+
+      personService
+        .create(newPerson)
+        .then(returnedPerson => {
+          setPersons(persons.concat(returnedPerson))
+          timeNotification(`Added ${returnedPerson.name}`, 5)
+          clearForm()
+        })
+        .catch(error => {
+          timeError(error.response.data.error, 5)
+        })
 
       return
     }
 
-    const newPerson = { 'name': newName, 'number': newNumber }
-
+    if (!window.confirm(`${newName} is already added to phonebook, replace the old number with a new one?`)) {
+      return
+    }
+    
+    const updatedPerson = {...persons.find(person => person.name === newName), number: newNumber}
+    
     personService
-      .create(newPerson)
+      .update(updatedPerson.id, updatedPerson)
       .then(returnedPerson => {
-        setPersons(persons.concat(returnedPerson))
-        timeNotification(`Added ${returnedPerson.name}`, 5)
+        setPersons(persons.map(person => person.id !== returnedPerson.id ? person : returnedPerson))
+        timeNotification(`Modified number for ${returnedPerson.name}`, 5)
         clearForm()
       })
+      .catch(error => {
+        message = error.response.data.error
+        if ("Contact validation failed" in message) {
+          timeError(message, 5)
+        }
+        else {
+          timeError(`${updatedPerson.name} was already removed from server`, 5)
+        }
+      })
+
   }
   
   return (

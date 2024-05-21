@@ -23,10 +23,10 @@ const unknownEndpoint = (request, response) => {
 const errorHandler = (error, request, response, next) => {
   console.log(error)
   if (error.name === 'CastError') {
-    response.status(400).send({ error: 'malformatted id' })
+    return response.status(400).send({ error: 'malformatted id' })
   }
   else if (error.name === 'ValidationError') {
-    response.status(400).json({ error: error.message })
+    return response.status(400).json({ error: error.message })
   }
 
   next(error)
@@ -52,36 +52,28 @@ app.get('/api/persons', (request, response) => {
 })
 
 app.post('/api/persons', (request, response, next) => {
-  const newPerson = request.body
+  const body = request.body
   
-  if (!newPerson.name || !newPerson.number) {
-    response.status(400).json({error: 'name or number missing'})
-    return 
-  }
-
   const contact = new Contact({
-    name: newPerson.name,
-    number: newPerson.number
+    name: body.name,
+    number: body.number
   })
 
   contact.save()
-  .then(result => {
-    console.log(`added ${newPerson.name} number ${newPerson.number} to phonebook`)
+  .then(savedContact => {
+    response.json(savedContact)
   })
   .catch(error => next(error))
-  
-  response.status(201).json(newPerson)
 })
 
 app.get('/api/persons/:id', (request, response, next) => {
-  const id = request.params.id
-  const contact = Contact.findById(id)
+  Contact.findById(request.params.id)
   .then(foundContact => {
     if (!foundContact){
       response.status(404).end()
+      
       return
     }
-
     response.json(foundContact)
   })
   .catch(error => next(error))
