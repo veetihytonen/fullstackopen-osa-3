@@ -13,6 +13,21 @@ mongoose.connect(url)
     console.log('error connecting to MongoDB:', error.message)
   })
 
+const numberValidator = (input) => {
+  formatted = input.split("-")
+  if (formatted.length !== 2)
+    return false
+
+  const [ beg, end ] = formatted
+
+  if (beg.length < 2 || beg.length > 3)
+    return false
+  if (beg.length + end.length < 8)
+    return false
+
+  return true
+}
+
 const contactSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -21,6 +36,7 @@ const contactSchema = new mongoose.Schema({
   },
   number: {
     type: String,
+    validate: [numberValidator, props => `${props.value} is not a valid number`],
     required: true
   }
 })

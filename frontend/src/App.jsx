@@ -178,8 +178,9 @@ const App = () => {
         clearForm()
       })
       .catch(error => {
-        message = error.response.data.error
-        if ("Contact validation failed" in message) {
+        const message = error.response.data.error
+
+        if (message.toLowerCase().includes("validation")) {
           timeError(message, 5)
         }
         else {
