@@ -14,7 +14,7 @@ mongoose.connect(url)
   })
 
 const numberValidator = (input) => {
-  formatted = input.split("-")
+  formatted = input.split('-')
   if (formatted.length !== 2)
     return false
 

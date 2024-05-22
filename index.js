@@ -6,9 +6,9 @@ const app = express()
 const Contact = require('./models/contanct')
 
 morgan.token('body', (req) => {
-  const {id: _, ...noID} = req.body
+  const { id: _, ...noID } = req.body
   const body = JSON.stringify(noID)
-  return body === "{}" ? "" : body
+  return body === '{}' ? '' : body
 })
 
 app.use(cors())
@@ -30,7 +30,7 @@ const errorHandler = (error, request, response, next) => {
   }
 
   next(error)
-}   
+}
 
 app.get('/info', (request, response) => {
   response.send(`
@@ -43,40 +43,40 @@ app.get('/info', (request, response) => {
 
 app.get('/api/persons', (request, response) => {
   Contact.find({})
-  .then(contacts => {
-    response.json(contacts)
-  })
-  .catch(error => {
-    console.log('error fetching contacts from db', error.message)
-  })
+    .then(contacts => {
+      response.json(contacts)
+    })
+    .catch(error => {
+      console.log('error fetching contacts from db', error.message)
+    })
 })
 
 app.post('/api/persons', (request, response, next) => {
   const body = request.body
-  
+
   const contact = new Contact({
     name: body.name,
     number: body.number
   })
 
   contact.save()
-  .then(savedContact => {
-    response.json(savedContact)
-  })
-  .catch(error => next(error))
+    .then(savedContact => {
+      response.json(savedContact)
+    })
+    .catch(error => next(error))
 })
 
 app.get('/api/persons/:id', (request, response, next) => {
   Contact.findById(request.params.id)
-  .then(foundContact => {
-    if (!foundContact){
-      response.status(404).end()
-      
-      return
-    }
-    response.json(foundContact)
-  })
-  .catch(error => next(error))
+    .then(foundContact => {
+      if (!foundContact){
+        response.status(404).end()
+
+        return
+      }
+      response.json(foundContact)
+    })
+    .catch(error => next(error))
 })
 
 app.put('/api/persons/:id', (request, response, next) => {
@@ -87,21 +87,21 @@ app.put('/api/persons/:id', (request, response, next) => {
     { name, number },
     { new: true, runValidators: true, context: 'query' }
   )
-  .then(updatedContact => {
-    response.json(updatedContact)
-  })
-  .catch(error => next(error))
+    .then(updatedContact => {
+      response.json(updatedContact)
+    })
+    .catch(error => next(error))
 })
 
 app.delete('/api/persons/:id', (request, response, next) => {
   const id = request.params.id
   Contact.findByIdAndDelete(id)
-  .then(result => {
-    response.status().end()
-  })
-  .catch(error => {
-    next(error)
-  })
+    .then(result => {
+      response.status().end()
+    })
+    .catch(error => {
+      next(error)
+    })
   response.status(204).end()
 })
 

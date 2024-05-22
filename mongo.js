@@ -23,13 +23,13 @@ const Contact = mongoose.model('Contact', contactSchema)
 
 const getAllContacts = () => {
   Contact.find({})
-  .then(result => {
-    console.log("phonebook:")
-    result.forEach(contact => {
-      console.log(`${contact.name} ${contact.number}`)
+    .then(result => {
+      console.log('phonebook:')
+      result.forEach(contact => {
+        console.log(`${contact.name} ${contact.number}`)
+      })
+      mongoose.connection.close()
     })
-    mongoose.connection.close()
-  })
 }
 
 const createContact = (name, number) => {
@@ -39,10 +39,10 @@ const createContact = (name, number) => {
   })
 
   contact.save()
-  .then(result => {
-    console.log(`added ${name} number ${number} to phonebook`)
-    mongoose.connection.close()
-  })
+    .then(result => {
+      console.log(`added ${name} number ${number} to phonebook`)
+      mongoose.connection.close()
+    })
 }
 
 if (process.argv.length === 3) {
