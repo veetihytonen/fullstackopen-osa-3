@@ -6,7 +6,7 @@ mongoose.set('strictQuery', false)
 
 console.log('connecting to', url)
 mongoose.connect(url)
-  .then(result => {
+  .then(() => {
     console.log('connected to MongoDB')
   })
   .catch((error) => {
@@ -14,7 +14,7 @@ mongoose.connect(url)
   })
 
 const numberValidator = (input) => {
-  formatted = input.split('-')
+  const formatted = input.split('-')
   if (formatted.length !== 2)
     return false
 

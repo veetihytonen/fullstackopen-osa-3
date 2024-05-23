@@ -39,7 +39,7 @@ const createContact = (name, number) => {
   })
 
   contact.save()
-    .then(result => {
+    .then(() => {
       console.log(`added ${name} number ${number} to phonebook`)
       mongoose.connection.close()
     })

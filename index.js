@@ -6,8 +6,9 @@ const app = express()
 const Contact = require('./models/contanct')
 
 morgan.token('body', (req) => {
-  const { id: _, ...noID } = req.body
-  const body = JSON.stringify(noID)
+  delete req.body.id
+  const body = JSON.stringify(req.body)
+
   return body === '{}' ? '' : body
 })
 
@@ -33,12 +34,15 @@ const errorHandler = (error, request, response, next) => {
 }
 
 app.get('/info', (request, response) => {
-  response.send(`
-    <div>
-      <p>Phonebook has info for ${persons.length} people</p>
-      <p>${new Date()}<p/>
-    </div>
-  `)
+  Contact.find({})
+    .then((contacts) => {
+      response.send(`
+      <div>
+        <p>Phonebook has info for ${contacts.length} people</p>
+        <p>${new Date()}<p/>
+      </div>
+    `)
+    })
 })
 
 app.get('/api/persons', (request, response) => {
@@ -96,7 +100,7 @@ app.put('/api/persons/:id', (request, response, next) => {
 app.delete('/api/persons/:id', (request, response, next) => {
   const id = request.params.id
   Contact.findByIdAndDelete(id)
-    .then(result => {
+    .then(() => {
       response.status().end()
     })
     .catch(error => {
